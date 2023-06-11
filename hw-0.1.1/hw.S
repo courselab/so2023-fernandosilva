@@ -1,22 +1,37 @@
-#   <file> - <One-line note about this file>
-# 
-#   Copyright (c) <YEAR>, <AUTHOR> 
-#
-#   This piece of software is a derivative work of SYSeg, by Monaco F. J.
-#   SYSeg is distributed under the license GNU GPL v3, and is available
-#   at the official repository https://www.gitlab.com/monaco/syseg.
-#
-#   This file is part of <PROJECT>.
-#
-#   <PROJECT> is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
-#   
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#   
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	## Boot, say hello, and halt
+	## AT&T assembly, translated from NASM
+	
+	.code16                # Set 16-bit code
+	
+	.global _start	       # Default entry point (for the linker)
+	
+_start:		               # Beginning of the program 
+	
+	movb  $0xe, %ah	       # Select BIOS tty mode
+	
+	movw  $0x0, %si	       # Iteration index
+loop:			      
+	movb  msg(%si), %al    # Offset to each character in the message
+	cmp   $0x0, %al	       # Loop while char is not 0x0 (end of string)
+	je    halt             # Jump to halt if last cmp was true
+	int   $0x10	       # Call BIOS video service
+	add   $0x1, %si	       # Point to the next character
+	jmp   loop	       # Repeat until we find a character 0x0
+	
+halt:
+	hlt		       # Halt
+	jmp   halt	       # Safeguard
+
+msg:			       
+
+	.string    "Hello World" 	 # C-like NULL terminated string
+	
+	.fill 510 - (. - _start), 1, 0   # Pad with zeros
+	.word 0xaa55			 # Boot signature
+
+
+	# Notes
+	#
+	# By default, the linker will consider _start the entry point,
+	# such that we don't need to pass it as a command-line option.
+	

@@ -36,11 +36,13 @@ hw-hex.bin : hw.hex
 	xxd -r -p hw.hex hw-hex.bin
 
 hw-s.bin : hw.S
-	@echo "Edit this rule"
-
+	as --32 $< -o $@
+	gcc -Wl,--oformat=binary -nostdlib -Ttext=0x7c00 $< -o $@
+	
 hw-c.bin : hw.c
-	@echo "Edit this line"
-
+	as --32 $< -o $@
+	
+	
 hex2bin : hex2bin.c
 	gcc $< -o $@
 
