@@ -33,7 +33,6 @@ all: # hw-hex hw-s hw-c
 	make hw-s.bin
 	make hw-c.bin
 	make hex2bin
-
         
 hw-hex.bin : hw.hex
 	./hex2bin hw.hex hw-hex.bin
