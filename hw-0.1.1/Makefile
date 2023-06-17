@@ -29,19 +29,23 @@
 ##
 
 all: # hw-hex hw-s hw-c
-	@echo "Edit this rule"
+	make hw-hex.bin
+	make hw-s.bin
+	make hw-c.bin
+	make hex2bin
 
         
 hw-hex.bin : hw.hex
-	xxd -r -p hw.hex hw-hex.bin
+	./hex2bin hw.hex hw-hex.bin
 
 hw-s.bin : hw.S
 	as --32 $< -o $@
 	gcc -Wl,--oformat=binary -nostdlib -Ttext=0x7c00 $< -o $@
 	
 hw-c.bin : hw.c
-	as --32 $< -o $@
-	
+	gcc -m16 -O0 -I. -Wall -fno-pic  -fcf-protection=none -c hw-rt0.c -o hw-rt0.o
+	gcc -m16 -O0 -I. -Wall -fno-pic  -fcf-protection=none -c hw-utils.c -o hw-utils.o
+	gcc -m16 -O0 -I. -Wall -fno-pic  -fcf-protection=none --freestanding -nostdlib -T hw.ld -Wl,--orphan-handling=discard hw.c -o hw-c.bin
 	
 hex2bin : hex2bin.c
 	gcc $< -o $@
